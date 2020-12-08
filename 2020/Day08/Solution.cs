@@ -34,21 +34,17 @@ namespace AdventOfCode.Y2020.D08
       var instructions = Instructions(input).ToList();
       var result = RunInstructions(instructions);
       var initialResult = result;
-      var lastOpIdx  = 0;
       var seenIdx = 0;
       while (!result.Complete) {
         if (result.Complete) return result.Acc;
         for (var i = seenIdx; i < initialResult.Seen.Count; i++)  {
           if (IsJmpOrNop(instructions[initialResult.Seen[i]])) {
             instructions[initialResult.Seen[i]] = FlipOp(instructions[initialResult.Seen[i]]);
-            lastOpIdx = i; 
+            result = RunInstructions(instructions);
+            instructions[initialResult.Seen[i]] = FlipOp(instructions[initialResult.Seen[i]]);
             seenIdx = i + 1;
             break;
           }
-        }
-        result = RunInstructions(instructions);
-        if (!result.Complete) {
-          instructions[initialResult.Seen[lastOpIdx]] = FlipOp(instructions[initialResult.Seen[lastOpIdx]]);
         }
       }
       return result.Acc;

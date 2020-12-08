@@ -30,9 +30,13 @@ namespace AdventOfCode
             Console.WriteLine($"{d6.GetName()} P1: {d6.PartOne()}");
             Console.WriteLine($"{d6.GetName()} P2: {d6.PartTwo()}");
 
-            var d7 = new AdventOfCode.Y2020.D07.Solution();
-            Console.WriteLine($"{d7.GetName()} P1: {d7.PartOne()}");
-            Console.WriteLine($"{d7.GetName()} P2: {d7.PartTwo()}");
+            // var d7 = new AdventOfCode.Y2020.D07.Solution();
+            // Console.WriteLine($"{d7.GetName()} P1: {d7.PartOne()}");
+            // Console.WriteLine($"{d7.GetName()} P2: {d7.PartTwo()}");
+
+            var d8 = new AdventOfCode.Y2020.D08.Solution();
+            Console.WriteLine($"{d8.GetName()} P1: {d8.PartOne()}");
+            Console.WriteLine($"{d8.GetName()} P2: {d8.PartTwo()}");
         }
     }
 }

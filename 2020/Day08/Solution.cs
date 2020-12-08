@@ -25,30 +25,30 @@ namespace AdventOfCode.Y2020.D08
       return RunInstructions(instructions).Acc;
     }
 
+    bool IsJmpOrNop((string, int) instruction)  {
+      var (op, value) = instruction;
+      return op is "jmp" or "nop";
+    }
+
     long SolvePartTwo(string input) {
       var instructions = Instructions(input).ToList();
       var result = RunInstructions(instructions);
-      var complete = result.Complete;
-      var lastOpIdx = instructions.Count - 1;
-      var farthestIdx = result.Idx;
-      while (!complete) {
-        if (complete) return result.Acc;
-        for (var i = lastOpIdx; i > -1; i--)  {
-          var (op, value) = instructions[i];
-          if (i == lastOpIdx) {
-            instructions[i] = FlipOp(instructions[i]);
-          }
-          else if (op is "jmp" or "nop") {
-            instructions[i] = FlipOp(instructions[i]);
-            lastOpIdx = i;
+      var initialResult = result;
+      var lastOpIdx  = 0;
+      var seenIdx = 0;
+      while (!result.Complete) {
+        if (result.Complete) return result.Acc;
+        for (var i = seenIdx; i < initialResult.Seen.Count; i++)  {
+          if (IsJmpOrNop(instructions[initialResult.Seen[i]])) {
+            instructions[initialResult.Seen[i]] = FlipOp(instructions[initialResult.Seen[i]]);
+            lastOpIdx = i; 
+            seenIdx = i + 1;
             break;
           }
         }
         result = RunInstructions(instructions);
-        farthestIdx = result.Idx > farthestIdx ? result.Idx : farthestIdx;
-        complete = result.Complete;
-        if (lastOpIdx == 0) {
-          return int.MinValue;
+        if (!result.Complete) {
+          instructions[initialResult.Seen[lastOpIdx]] = FlipOp(instructions[initialResult.Seen[lastOpIdx]]);
         }
       }
       return result.Acc;

@@ -31,23 +31,23 @@ namespace AdventOfCode.Y2020.D09
         slice.Dequeue();
         slice.Enqueue(target);
       }
-      throw new Exception("Number not found");
+      throw new Exception("Not found");
     }
 
 
     long SolvePartTwo(string input, long target) {
-      var numbers = Numbers(input).TakeWhile(x => x != target).ToList();
-      for (var i = numbers.Count - 2; i >= 0; i--) {
-        var values = new List<long>();
-        values.Add(numbers[i]);
+      var numbers = Numbers(input).TakeWhile(x => x != target).SkipLast(1).ToList();
+      var sums = CumulativeSum(numbers).ToList();
+      for (var i = sums.Count() - 1; i >= 0; i--) {
+        var sum = sums[i];
         for (var j = i - 1; j >= 0; j--) {
-          values.Add(numbers[j]);
-          if (values.Sum() == target) {
-            return values.Min() + values.Max();
+          if (sum - sums[j] == target) {
+            var range = numbers.GetRange(j + 1, i - j + 1);
+            return range.Min() + range.Max();
           }
         }
       }
-      return 1;
+      throw new Exception("Not found");
     }
 
     IEnumerable<long> Numbers(string input) {
@@ -56,6 +56,16 @@ namespace AdventOfCode.Y2020.D09
           let number = Int64.Parse(line)
         select number
       );
+    }
+
+    IEnumerable<long> CumulativeSum(IEnumerable<long> sequence)
+    {
+      long sum = 0;
+      foreach(var item in sequence)
+      {
+          sum += item;
+          yield return sum;
+      }        
     }
     
   }

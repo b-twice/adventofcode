@@ -52,23 +52,17 @@ namespace AdventOfCode.Y2020.D08
 
     (string, int) FlipOp((string, int) instruction) {
       var (op, value) = instruction;
-      if (op == "jmp") {
-        return ("nop", value);
-      }
-      else if (op == "nop") {
-        return ("jmp", value);
-      }
-      else {
-        return (op, value);
-      }
+      return op switch {
+        "jmp" => ("nop", value),
+        "nop" => ("jmp", value),
+        _ => (op, value)
+      };
     }
 
     RunResult RunInstructions(IList<(string, int)> instructions) {
       var stack = new Stack<(string, int)>();
       stack.Push(instructions.FirstOrDefault());
-      var idx = 0;
-      var acc = 0;
-      var seen = new List<int>();
+      var (idx, acc, seen) = (0, 0, new List<int>());
       var complete = false;
       while (stack.Count > 0) {
         var (op, value) = stack.Pop();
@@ -77,10 +71,7 @@ namespace AdventOfCode.Y2020.D08
         }
         seen.Add(idx);
         switch(op) {
-          case "acc":
-            acc = acc + value;
-            idx++;
-            break;
+          case "acc": acc = acc + value; idx++; break;
           case "jmp":
             idx = idx + value;
             break;

@@ -12,6 +12,7 @@ namespace AdventOfCode.Y2020.D10
 
     public long PartOne() => SolvePartOne(System.IO.File.ReadAllText(Input));
     public long PartTwo() => SolvePartTwo(System.IO.File.ReadAllText(Input));
+    public Dictionary<long, long> Cache = new Dictionary<long, long>(){{0L, 1L}}; 
 
     long SolvePartOne(string input)  {
       var jolts = Parse(input);
@@ -31,15 +32,13 @@ namespace AdventOfCode.Y2020.D10
 
     long SolvePartTwo(string input)  {
       var jolts = Parse(input);
-      var (a, b, c) = (1L, 0L, 0L); 
-      for (var i = jolts.Count - 2; i >= 0; i--) {
-          var s =  
-              (i + 1 < jolts.Count && jolts[i + 1] - jolts[i] <= 3 ? a : 0) +
-              (i + 2 < jolts.Count && jolts[i + 2] - jolts[i] <= 3 ? b : 0) +
-              (i + 3 < jolts.Count && jolts[i + 3] - jolts[i] <= 3 ? c : 0);
-          (a, b, c) = (s, a, b);
+      foreach (var jolt in jolts.Skip(1)) {
+        Cache[jolt] = 
+          (Cache.ContainsKey(jolt - 1) ? Cache[jolt - 1] : 0) + 
+          (Cache.ContainsKey(jolt - 2) ? Cache[jolt - 2] : 0) + 
+          (Cache.ContainsKey(jolt - 3) ? Cache[jolt - 3] : 0);
       }
-      return a;
+      return Cache[jolts.Last()];
     }
 
     

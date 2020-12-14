@@ -53,6 +53,14 @@ namespace AdventOfCode
             var d12 = new AdventOfCode.Y2020.D12.Solution();
             Console.WriteLine($"{d12.GetName()} P1: {d12.PartOne()}");
             Console.WriteLine($"{d12.GetName()} P2: {d12.PartTwo()}");
+
+            var d13 = new AdventOfCode.Y2020.D13.Solution();
+            Console.WriteLine($"{d13.GetName()} P1: {d13.PartOne()}");
+            Console.WriteLine($"{d13.GetName()} P2: {d13.PartTwo()}");
+
+            var d14 = new AdventOfCode.Y2020.D14.Solution();
+            Console.WriteLine($"{d14.GetName()} P1: {d14.PartOne()}");
+            Console.WriteLine($"{d14.GetName()} P2: {d14.PartTwo()}");
         }
     }
 }

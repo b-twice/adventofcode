@@ -61,6 +61,10 @@ namespace AdventOfCode
             var d14 = new AdventOfCode.Y2020.D14.Solution();
             Console.WriteLine($"{d14.GetName()} P1: {d14.PartOne()}");
             Console.WriteLine($"{d14.GetName()} P2: {d14.PartTwo()}");
+
+            var d15 = new AdventOfCode.Y2020.D15.Solution();
+            Console.WriteLine($"{d15.GetName()} P1: {d15.PartOne()}");
+            Console.WriteLine($"{d15.GetName()} P2: {d15.PartTwo()}");
         }
     }
 }

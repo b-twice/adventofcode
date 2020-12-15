@@ -24,16 +24,13 @@ namespace AdventOfCode.Y2020.D04
       => (id, issueYear, expirationYear, countryId, eyeColor, hairColor, birthYear, height, heightUnit) = (Id, IssueYear, ExpirationYear, CountryId, EyeColor, HairColor, BirthYear, Height, HeightUnit);
 
  };
+  public class Solution: ISolution {
 
-  public class Solution {
+    public string Name {get;} = "Passport Processing";
 
-    public string GetName() => "Passport Processing";
-    private string Input = "2020/Day04/input.in";
+    public long PartOne(string input) => SolvePartOne(input, ValidatePassportPartOne);
+    public long PartTwo(string input) => SolvePartTwo(input, ValidatePassportPartTwo);
 
-// 
-    public long PartOne() => SolvePartOne(System.IO.File.ReadAllText(Input), ValidatePassportPartOne);
-    // public long PartOne() => SolvePartOne(System.IO.File.ReadAllText(Input));
-    public long PartTwo() => SolvePartTwo(System.IO.File.ReadAllText(Input), ValidatePassportPartTwo);
 
     long SolvePartOne(string input, Func<Passport, bool> validator) {
       return Passports(input).Where(validator).Count();

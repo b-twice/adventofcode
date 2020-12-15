@@ -6,13 +6,12 @@ using System.Numerics;
 
 namespace AdventOfCode.Y2020.D13
 {
-  public class Solution {
+  public class Solution: ISolution {
+  
+    public string Name {get;} = "Shuttle Search";
 
-    public string GetName() =>  "Shuttle Search";
-    private string Input = "2020/Day13/input.in";
-
-    public long PartOne() => SolvePartOne(System.IO.File.ReadAllText(Input));
-    public long PartTwo() => SolvePartTwo(System.IO.File.ReadAllText(Input));
+    public long PartOne(string input) => SolvePartOne(input);
+    public long PartTwo(string input) => SolvePartTwo(input);
 
     long CalculateEarliestDeparture(long departureTime, long bus) {
       return departureTime + (bus - (departureTime % bus));

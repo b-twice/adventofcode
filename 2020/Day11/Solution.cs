@@ -5,13 +5,14 @@ using System.Collections.Immutable;
 
 namespace AdventOfCode.Y2020.D11
 {
-  public class Solution {
+  public class Solution: ISolution {
+  
+    public string Name {get;} = "Seating System";
 
-    public string GetName() =>  "Seating System";
-    private string Input = "2020/Day11/input.in";
+    public long PartOne(string input) => ArrangeSeats(input, 4);
+    public long PartTwo(string input) => ArrangeSeats(input, 5, true);
 
-    public long PartOne() => ArrangeSeats(System.IO.File.ReadAllText(Input), 4);
-    public long PartTwo() => ArrangeSeats(System.IO.File.ReadAllText(Input), 5, true);
+
     (int, int)[] dirs = new []{(1, 0), (-1, 0), (0, 1), (0, -1),(1, 1), (-1, 1), (-1, -1), (1, -1)};
 
     int ArrangeSeats(string input, int seatLimit, bool lineOfSight=false) {

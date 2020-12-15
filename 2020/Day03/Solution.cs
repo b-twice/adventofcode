@@ -5,19 +5,18 @@ using System.Collections.Immutable;
 
 namespace AdventOfCode.Y2020.D03
 {
+  public record SlopePosition (
+    int column,
+    int line
+  );
 
-  public class Solution {
+  public class Solution: ISolution {
 
-    public record SlopePosition (
-      int column,
-      int line
-    );
 
-    public string GetName() => "Toboggan Trajectory";
-    private string Input = "2020/Day03/input.in";
+    public string Name {get;} = "Toboggan Trajector";
 
-    public long PartOne() => SolvePartOne(System.IO.File.ReadAllText(Input));
-    public long PartTwo() => SolvePartTwo(System.IO.File.ReadAllText(Input));
+    public long PartOne(string input) => SolvePartOne(input);
+    public long PartTwo(string input) => SolvePartTwo(input);
 
     long SolvePartOne(string input) {
       return CountTreesOnSlope(input, 3, 1);

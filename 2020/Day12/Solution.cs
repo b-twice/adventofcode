@@ -6,15 +6,16 @@ using System.Text.RegularExpressions;
 
 namespace AdventOfCode.Y2020.D12
 {
-  public class Solution {
+  public record Vessel(int x, int y, char dir);
 
-    public record Vessel(int x, int y, char dir);
+  public class Solution: ISolution {
+  
+    public string Name {get;} = "Rain Risk";
 
-    public string GetName() =>  "Rain Risk";
-    private string Input = "2020/Day12/input.in";
+    public long PartOne(string input) => DistanceOfShipNavigation(input, false);
+    public long PartTwo(string input) => DistanceOfShipNavigation(input, true);
 
-    public long PartOne() => DistanceOfShipNavigation(System.IO.File.ReadAllText(Input), false);
-    public long PartTwo() => DistanceOfShipNavigation(System.IO.File.ReadAllText(Input), true);
+
 
     long DistanceOfShipNavigation(string input, bool hasWaypoint) {
       var instructions = Parse(input);

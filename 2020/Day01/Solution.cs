@@ -5,14 +5,14 @@ using System.Collections.Immutable;
 
 namespace AdventOfCode.Y2020.D01 
 {
-  public class Solution {
+  public class Solution: ISolution {
 
-    public string GetName() => "Report Repair";
+    public string Name {get;} = "Report Repair";
+    public string Input {get;} = "2020/Day01/input.in";
     private int Total = 2020;
-    private string Input = "2020/Day01/input.in";
 
-    public long PartOne() => SolvePartOne(System.IO.File.ReadAllText(Input));
-    public long PartTwo() => SolvePartTwo(System.IO.File.ReadAllText(Input));
+    public long PartOne(string input) => SolvePartOne(input);
+    public long PartTwo(string input) => SolvePartTwo(input);
 
     long SolvePartOne(string input) {
       List<int> numbers = Numbers(input).ToList();

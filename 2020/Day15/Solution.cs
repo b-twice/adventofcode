@@ -7,13 +7,15 @@ using System.Text.RegularExpressions;
 
 namespace AdventOfCode.Y2020.D15
 {
-  public class Solution {
 
-    public string GetName() =>  "Rambunctious Recitation";
-    private string Input = "2020/Day15/input.in";
+  public class Solution: ISolution {
+  
+    public string Name {get;} = "Rambunctious Recitation";
 
-    public long PartOne() => PlayGame(System.IO.File.ReadAllText(Input), 2020);
-    public long PartTwo() => PlayGame(System.IO.File.ReadAllText(Input), 30000000);
+    public long PartOne(string input) => PlayGame(input, 2020);
+    public long PartTwo(string input) => PlayGame(input, 30000000);
+
+
 
 
     long PlayGame(string input, int numbersSeen)  {
@@ -24,7 +26,7 @@ namespace AdventOfCode.Y2020.D15
       var lastNumberSpoken = startingNumbers.LastOrDefault();
       var seenLastNumber = startingNumbers.Where(s => s == lastNumberSpoken).Count() > 1;
       var currentNumberSpoken = 0;
-      for (var i = startingNumbers.Count() + 1; i <= 30000000; i++) {
+      for (var i = startingNumbers.Count() + 1; i <= numbersSeen; i++) {
         if (!seenLastNumber) {
           currentNumberSpoken = 0;
           if (mem.ContainsKey(currentNumberSpoken)) {

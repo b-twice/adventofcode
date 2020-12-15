@@ -5,23 +5,24 @@ using System.Collections.Immutable;
 
 namespace AdventOfCode.Y2020.D07 
 {
-  public class Solution {
+  public record Bag (
+    string Name,
+    IEnumerable<BagHolding> Holds 
+  );
 
-    public record Bag (
-      string Name,
-      IEnumerable<BagHolding> Holds 
-    );
+  public record BagHolding (
+    string Name,
+    int Count 
+  );
 
-    public record BagHolding (
-      string Name,
-      int Count 
-    );
+  public class Solution: ISolution {
+  
+    public string Name {get;} = "Handy Haversacks";
 
-    public string GetName() => "Handy Haversacks";
-    private string Input = "2020/Day07/input.in";
+    public long PartOne(string input) => SolvePartOne(input);
+    public long PartTwo(string input) => SolvePartTwo(input);
 
-    public long PartOne() => SolvePartOne(System.IO.File.ReadAllText(Input));
-    public long PartTwo() => SolvePartTwo(System.IO.File.ReadAllText(Input));
+
 
     long SolvePartOne(string input) {
       var bags = Bags(input);

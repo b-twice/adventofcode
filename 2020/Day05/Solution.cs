@@ -6,13 +6,13 @@ using System.Collections.Immutable;
 namespace AdventOfCode.Y2020.D05
 {
 
-  public class Solution {
+  public class Solution: ISolution {
 
-    public string GetName() => "Binary Boarding";
-    private string Input = "2020/Day05/input.in";
+    public string Name {get;} = "Binary Boarding";
 
-    public long PartOne() => SolvePartOne(System.IO.File.ReadAllText(Input));
-    public long PartTwo() => SolvePartTwo(System.IO.File.ReadAllText(Input));
+    public long PartOne(string input) => SolvePartOne(input);
+    public long PartTwo(string input) => SolvePartTwo(input);
+
 
     long SolvePartOne(string input) {
       return BoardingPasses(input).Max();

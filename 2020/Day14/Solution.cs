@@ -7,13 +7,12 @@ using System.Text.RegularExpressions;
 
 namespace AdventOfCode.Y2020.D14
 {
-  public class Solution {
+  public class Solution: ISolution {
+  
+    public string Name {get;} = "Docking Data";
 
-    public string GetName() =>  "Docking Data";
-    private string Input = "2020/Day14/input.in";
-
-    public long PartOne() => SolvePartOne(System.IO.File.ReadAllText(Input));
-    public long PartTwo() => SolvePartTwo(System.IO.File.ReadAllText(Input));
+    public long PartOne(string input) => SolvePartOne(input);
+    public long PartTwo(string input) => SolvePartTwo(input);
 
 
     long SolvePartOne(string input)  {

@@ -5,13 +5,14 @@ using System.Collections.Immutable;
 
 namespace AdventOfCode.Y2020.D10
 {
-  public class Solution {
+  public class Solution: ISolution {
+  
+    public string Name {get;} = "Adapter Array";
 
-    public string GetName() =>  "Adapter Array";
-    private string Input = "2020/Day10/input.in";
+    public long PartOne(string input) => SolvePartOne(input);
+    public long PartTwo(string input) => SolvePartTwo(input);
 
-    public long PartOne() => SolvePartOne(System.IO.File.ReadAllText(Input));
-    public long PartTwo() => SolvePartTwo(System.IO.File.ReadAllText(Input));
+
     public Dictionary<long, long> Cache = new Dictionary<long, long>(){{0L, 1L}}; 
 
     long SolvePartOne(string input)  {

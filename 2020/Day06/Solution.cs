@@ -5,13 +5,12 @@ using System.Collections.Immutable;
 
 namespace AdventOfCode.Y2020.D06 
 {
-  public class Solution {
+  public class Solution: ISolution {
 
-    public string GetName() => "Custom Customs";
-    private string Input = "2020/Day06/input.in";
+    public string Name {get;} = "Custom Customs";
 
-    public long PartOne() => SolvePartOne(System.IO.File.ReadAllText(Input));
-    public long PartTwo() => SolvePartTwo(System.IO.File.ReadAllText(Input));
+    public long PartOne(string input) => SolvePartOne(input);
+    public long PartTwo(string input) => SolvePartTwo(input);
 
     long SolvePartOne(string input) {
       return GroupAnswers(input).Sum(group => group.SelectMany(c => c).Distinct().Count());

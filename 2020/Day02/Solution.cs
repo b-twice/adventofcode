@@ -12,14 +12,13 @@ namespace AdventOfCode.Y2020.D02
     string Password
   );
 
-  public class Solution {
+  public class Solution: ISolution {
 
 
-    public string GetName() => "Password Philosophy";
-    private string Input = "2020/Day02/input.in";
+    public string Name {get;} = "Password Philosophy";
 
-    public long PartOne() => SolvePartOne(System.IO.File.ReadAllText(Input));
-    public long PartTwo() => SolvePartTwo(System.IO.File.ReadAllText(Input));
+    public long PartOne(string input) => SolvePartOne(input);
+    public long PartTwo(string input) => SolvePartTwo(input);
 
     long SolvePartOne(string input) {
       var records = Records(input).Where(r => ValidatePasswordRecordV1(r));

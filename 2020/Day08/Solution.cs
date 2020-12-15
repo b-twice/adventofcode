@@ -5,20 +5,19 @@ using System.Collections.Immutable;
 
 namespace AdventOfCode.Y2020.D08 
 {
-  public class Solution {
+  public record RunResult (
+      int Idx,
+      int Acc,
+      bool Complete,
+      List<int> Seen
+  );
 
-    public record RunResult (
-       int Idx,
-       int Acc,
-       bool Complete,
-       List<int> Seen
-    );
+  public class Solution: ISolution {
+  
+    public string Name {get;} = "Handheld Halting";
 
-    public string GetName() => "Handheld Halting";
-    private string Input = "2020/Day08/input.in";
-
-    public long PartOne() => SolvePartOne(System.IO.File.ReadAllText(Input));
-    public long PartTwo() => SolvePartTwo(System.IO.File.ReadAllText(Input));
+    public long PartOne(string input) => SolvePartOne(input);
+    public long PartTwo(string input) => SolvePartTwo(input);
 
     long SolvePartOne(string input) {
       var instructions = Instructions(input).ToList();

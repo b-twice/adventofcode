@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace AdventOfCode
 
             foreach (var t in types)
             {
-                if (t.Namespace.StartsWith("AdventOfCode.Y2020.D07")) continue;
+                if (t.Namespace.StartsWith("AdventOfCode.Y2020.D07") || t.Namespace.StartsWith("AdventOfCode.Y2020.D15")) continue;
 
                 var pathParts = t.Namespace.Split(".");
                 var inputPath = pathParts.Skip(1).Take(2).Select(s => s.Replace("Y", "").Replace("D", "Day"));

@@ -6,119 +6,81 @@ namespace AdventOfCode.Y2020.D17
 {
 
   public class Solution: ISolution {
-  
+
     public string Name {get;} = "Conway Cubes";
 
     public long PartOne(string input) => SolvePartOne(input);
     public long PartTwo(string input) => SolvePartTwo(input);
 
-
-    // 26 positions for neighbors
-    (int x, int y, int z)[] Neighbors = new []{
-      (1, 0,  0), (-1, 0,  0), (0, 1,  0), (0, -1,  0),(1, 1,  0), (-1, 1,  0), (-1, -1,  0), (1, -1,  0),
-      (1, 0, -1), (-1, 0, -1), (0, 1, -1), (0, -1, -1),(1, 1, -1), (-1, 1, -1), (-1, -1, -1), (1, -1, -1),
-      (1, 0,  1), (-1, 0,  1), (0, 1,  1), (0, -1,  1),(1, 1,  1), (-1, 1,  1), (-1, -1,  1), (1, -1,  1),
-      (0, 0, 1), (0, 0, -1)
-    };
-
     long SolvePartOne(string input) {
-      return Run(new []{Parse(input)}, 6);
+      var neighbors = (from x in new[] { -1, 0, 1 }
+          from y in new[] { -1, 0, 1 }
+          from z in new[] { -1, 0, 1 }
+          where x != 0 || y != 0 || z != 0
+          select (x, y, z, w:0)).ToArray();
+      var map = InitMap(Parse(input));
+      return Run(map, 6, neighbors);
     }
 
     long SolvePartTwo(string input) {
-      return Run(new []{Parse(input)}, 6);
+      var neighbors = (from x in new[] { -1, 0, 1 }
+          from y in new[] { -1, 0, 1 }
+          from z in new[] { -1, 0, 1 }
+          from w in new[] { -1, 0, 1 }
+          where x != 0 || y != 0 || z != 0 || w != 0
+          select (x, y, z, w:w)).ToArray();
+      var map = InitMap(Parse(input));
+      return Run(map, 6, neighbors);
     }
 
-    Char[][][] CreateState(int x, int y, int z) {
-      var states = new List<char[][]>();
-      for (var zz = 0; zz < z; zz++) {
-        var state = new List<char[]>();
-        for (var xx = 0; xx < x; xx++) {
-          var row = new Char[y];
-          for (var yy = 0; yy < y; yy++) {
-            row.Append('.');
-          }
-          state.Add(row);
-        }
-        states.Add(state.ToArray());
-      }
-      return states.ToArray();
-    }
-
-    Char[][][] GrowState(int x, int y, int z, Char[][][] currentState) {
-      var states = new Char[z][][];
-      for (var zz = 0; zz < z; zz++) {
-        states[zz] = new Char[x][];
-        for (var xx = 0; xx < x; xx++) {
-          states[zz][xx] = new Char[y];
-          for (var yy = 0; yy < y; yy++) {
-            if (zz > 0 && yy > 0 && xx > 0 && zz < z - 1 && xx < x - 1 && yy < y - 1) {
-              states[zz][xx][yy] = GetCube(xx - 1, yy - 1, zz - 1, currentState);
-            }
-            else {
-              states[zz][xx][yy] = '.';
-            }
+    Dictionary<(int x, int y, int z, int w), (bool active, int neighbors)> InitMap(char[][] grid) {
+      var map = new Dictionary<(int x, int y, int z, int w), (bool active, int count)>();
+      for (var x = 0; x < grid.Length; x++) {
+        for (var y = 0; y < grid[x].Length; y++) {
+          if (grid[x][y] == '#') {
+            map.Add((x, y, 0, 0), (true, 0));
           }
         }
       }
-      return states.ToArray();
+      return map;
     }
 
-    long Run(char[][][] currentState, int cycles)
+    long Run(Dictionary<(int x, int y, int z, int w), (bool active, int count)> map, int cycles, (int x, int y, int z, int w)[] neighbors)
     {
-      var z = currentState.Length;
-      var x = currentState[0].Length; 
-      var y = currentState[0][0].Length;
-      var activeCount = 0L;
-      for (var cycle = 1; cycle <= cycles; cycle++) {
-        activeCount = 0;
-        z = z + 2;
-        x = x + 2;
-        y = y + 2;
-        currentState = GrowState(x, y, z, currentState);
-        var nextState = CreateState(x, y, z);
-        // e.g. if 0, -1 to 1 or -2 to 2
-        for (var zz = 0; zz < z; zz++) {
-          for (var xx = 0; xx < x; xx++) {
-            for (var yy = 0; yy < y; yy++) {
-              var cube = ProcessCube(GetCube(xx, yy, zz, currentState), xx, yy, zz, currentState);
-              nextState[zz][xx][yy] = cube;
-              if (cube == '#') {
-                activeCount += 1;
-              }
+      while (cycles > 0) {
+        foreach(var p in map.Keys.ToList()) {
+          foreach (var n in neighbors)  {
+            var neighbor = (p.x + n.x, p.y + n.y, p.z + n.z, p.w + n.w);
+            if (!map.ContainsKey(neighbor)) {
+              map[neighbor] = (false, 1);
+            }
+            else if (map.ContainsKey(neighbor) && !map[neighbor].active) {
+              map[neighbor] = IncrementPoint(map[neighbor]);
+            }
+            if (map[neighbor].active) {
+              map[p] = IncrementPoint(map[p]);
             }
           }
         }
-        currentState = nextState;
-      }
-      return activeCount;
-    }
-
-    char GetCube(int x, int y, int z, char[][][] state) {
-      if (z >= 0 && x >= 0 && y >= 0 && z < state.Length && x < state[0].Length && y < state[0][0].Length) {
-        return state[z][x][y];
-      }
-      return '.';
-    }
-
-    char ProcessCube(char cube, int x, int y, int z, char[][][] states) 
-    {
-      var activeCount = 0;
-      foreach (var (xOff, yOff, zOff) in Neighbors) {
-        if (GetCube(x + xOff, y + yOff, z + zOff, states) == '#') {
-          activeCount++;
-        } 
-        if (activeCount > 3) {
-          break;
+        foreach(var p in map.Keys) {
+          var (active, count) = map[p];
+          if (active == true && (count == 2 || count == 3)) {
+            map[p] = (true, 0);
+          }
+          else if(active == false && count == 3) {
+            map[p] = (true, 0);
+          }
+          else {
+            map.Remove(p);
+          }
         }
+        cycles--;
       }
-      if (cube == '#' && (activeCount == 2 || activeCount == 3)) {
-        return '#';
-      }
-      else if(cube == '.' && activeCount == 3) {
-        return '#';
-      }
-      return '.';
+      return map.Keys.Count(); 
+    }
+
+    (bool active, int count) IncrementPoint((bool active, int count) point) {
+      return (point.active, point.count + 1);
     }
 
     char[][] Parse(string input) {

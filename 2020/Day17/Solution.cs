@@ -53,11 +53,12 @@ namespace AdventOfCode.Y2020.D17
             var neighbor = (p.x + n.x, p.y + n.y, p.z + n.z, p.w + n.w);
             if (!map.ContainsKey(neighbor)) {
               map[neighbor] = (false, 1);
+              continue;
             }
-            else if (map.ContainsKey(neighbor) && !map[neighbor].active) {
+            if (!map[neighbor].active) {
               map[neighbor] = IncrementPoint(map[neighbor]);
             }
-            if (map[neighbor].active) {
+            else {
               map[p] = IncrementPoint(map[p]);
             }
           }

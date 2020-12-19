@@ -38,61 +38,18 @@ namespace AdventOfCode.Y2020.D19
     }
 
     long SolvePartTwo(string input) {
-      var messages = ParseMessages(input);
       Rules = ParseRules(input);
-      Rules["8"] = "42";
-      Rules["11"] = "31";
       var firstRule = BuildRule(Rules["42"]);
       var secondRule = BuildRule(Rules["31"]);
-      var startsPattern = new Regex($"^({firstRule})");
-      var endsPattern = new Regex($"({secondRule})$");
-      var firstPattern = new Regex($"({firstRule})");
-      var secondPattern = new Regex($"({secondRule})");
-      var count = 0;
+      // regex https://weblogs.asp.net/whaggard/377025
+      var rule0 = Rules["0"]
+          .Replace("8", $"(?:{firstRule})+")
+          .Replace("11", $"(?<k>{firstRule})+(?<-k>{secondRule})+(?(k)(?!))");
 
-      foreach (var message in messages) {
-        var start = startsPattern.Match(message);
-        var end = endsPattern.Match(message);
-        if (start.Success && end.Success) {
-          var sub = message.Substring(start.Length, message.Length - end.Length - end.Length);
-          var (first, firstLength) = CountConsecutiveMatches(firstPattern.Matches(sub));
-          var (second, secondLength) = CountConsecutiveMatches(secondPattern.Matches(ReverseEx(sub)));
-          if (firstLength + secondLength != sub.Length) continue;
-          if (first > 0 && first >= second) count++;
-        };
-      }
-      return count;
-    }
+      var rule0Regex = new Regex($"^{rule0}$", RegexOptions.IgnorePatternWhitespace);
+      
+      return ParseMessages(input).Count(rule0Regex.IsMatch);
 
-    (int, int) CountConsecutiveMatches(MatchCollection matches) {
-      var count = 0;
-      var idx = 0;
-      var length = 0;
-      foreach(Match match in matches) 
-      {
-        if (match.Index != idx) {
-          break;
-        }
-        idx = idx + match.Length;
-        count++;
-        length = length + match.Length;
-      }
-      return (count, length);
-
-    }
-
-    private string ReverseEx(string str)
-    {
-        char[] chrArray = str.ToCharArray();
-        int len = chrArray.Length - 1;
-        char rev = 'n';
-        for (int i = 0; i <= len/2; i++)
-        {
-            rev = chrArray[i];
-            chrArray[i] = chrArray[len - i];
-            chrArray[len - i] = rev;
-        }
-        return new string(chrArray);
     }
 
     IEnumerable<string> ParseMessages(string input) {

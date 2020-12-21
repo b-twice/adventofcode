@@ -14,7 +14,7 @@ namespace AdventOfCode.Y2020.D20
   public class Solution: ISolution {
 
   
-    public string Name {get;} = "";
+    public string Name {get;} = "Jurassic Jigsaw";
 
     public long PartOne(string input) => SolvePartOne(input);
     public long PartTwo(string input) => SolvePartTwo(input);
@@ -31,9 +31,9 @@ namespace AdventOfCode.Y2020.D20
     
 
     long SolvePartTwo(string input) {
-      Tiles = MapTiles(input);
-      Matches = MatchTiles(input);
-      var tile = MosaicTileGrid(BuildTileGrid());
+      // Tiles = MapTiles(input);
+      // Matches = MatchTiles(input);
+      // var tile = MosaicTileGrid(BuildTileGrid());
       return 1;
     }
 

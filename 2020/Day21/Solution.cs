@@ -4,11 +4,6 @@ using System.Linq;
 
 namespace AdventOfCode.Y2020.D21
 {
-      record Problem(
-        HashSet<string> allergens, 
-        HashSet<string> ingredients, 
-        (HashSet<string> ingredients, HashSet<string> allergens)[] mapping);
-
   public record Food(string[] allergens, string[] ingredients);
 
   public class Solution: ISolution {

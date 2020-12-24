@@ -33,7 +33,7 @@ namespace AdventOfCode.Y2020.D17
       return Run(map, 6, neighbors);
     }
 
-    Dictionary<(int x, int y, int z, int w), (bool active, int neighbors)> InitMap(char[][] grid) {
+    Dictionary<(int x, int y, int z, int w), (bool active, int count)> InitMap(char[][] grid) {
       var map = new Dictionary<(int x, int y, int z, int w), (bool active, int count)>();
       for (var x = 0; x < grid.Length; x++) {
         for (var y = 0; y < grid[x].Length; y++) {

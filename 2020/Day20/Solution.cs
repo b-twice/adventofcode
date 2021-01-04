@@ -21,6 +21,7 @@ namespace AdventOfCode.Y2020.D20
 
     public Dictionary<int, Tile> Tiles  =new Dictionary<int, Tile>();
     public Dictionary<int, List<Match>> Matches = new Dictionary<int, List<Match>>();
+    public Dictionary<(int x, int y), Tile> TileGrid = new Dictionary<(int x, int y), Tile>();
 
     long SolvePartOne(string input) {
       Tiles = MapTiles(input);
@@ -31,9 +32,27 @@ namespace AdventOfCode.Y2020.D20
     
 
     long SolvePartTwo(string input) {
-      // Tiles = MapTiles(input);
-      // Matches = MatchTiles(input);
-      // var tile = MosaicTileGrid(BuildTileGrid());
+      Tiles = MapTiles(input);
+      Matches = MatchTiles(input);
+      var tile = new Tile(0, MosaicTileGrid(BuildTileGrid()));
+      var monster = new string[]{
+          "                  # ",
+          "#    ##    ##    ###",
+          " #  #  #  #  #  #   "
+      };
+
+      var size = tile.Grid[0].Length;
+      var tileString = string.Join("\n", Enumerable.Range(0, size).Select(i => string.Join("", tile.Grid[i])));
+ 
+      foreach(var t in RotateTile(tile)) {
+        tileString = string.Join("\n", Enumerable.Range(0, size).Select(i => string.Join("", t.Grid[i])));
+        var monsterCount = MatchCount(t, monster);
+        if (monsterCount > 0) {
+          var hashCountInImage = tileString.Count(ch => ch == '#');
+          var hashCountInMonster = string.Join("\n", monster).Count(ch => ch == '#');
+          return hashCountInImage - monsterCount * hashCountInMonster;
+        }
+      }
       return 1;
     }
 
@@ -74,87 +93,149 @@ namespace AdventOfCode.Y2020.D20
     private Tile[][] BuildTileGrid() {
       var tileSize = (int)Math.Sqrt(Tiles.Keys.Count());
       var startTile = Tiles[Matches.Where(t => t.Value.Count == 2).First().Key];
-      // var result = new Char[startTile.Grid.Length * tileSize][];
-      var tileGrid = new Tile[tileSize][];
-      var rowSide = FindNextRowSide(startTile.Id);
-      var columnSide = FindNextColumnSide(startTile.Id);
-      // var writeIdx = 0;
-      // go through each row
-      for (var i = 0; i < tileSize; i++) {
-        // pull out the tiles
-        var tiles = OrderTileRow(startTile, rowSide);
-        // for (var j = 0; j < startTile.Grid.Length; j ++) {
-        //   result[writeIdx] = ReadTileLine(tiles, j);
-        //   writeIdx++;
-        // }
-        tileGrid[i] = tiles;
-        // start at next row
-        if (i < tileSize - 1) {
-          (startTile, columnSide) = FindNextMatch(startTile.Id, columnSide);
-          rowSide = FindNextAdjacentSide(startTile.Id, columnSide);
-        }
-      }
-      // foreach (var row in result) {
-      //   Console.WriteLine(row);
-      // }
-      return tileGrid;
-    }
+      startTile = new Tile(startTile.Id, FlipGrid(startTile.Grid));
+      var result = new Char[startTile.Grid.Length * tileSize][];
+      var process = new Queue<(int x, int y, Tile tile)>();
+      process.Enqueue((0, 0, startTile));
+      var seen = new HashSet<int>();
 
-    Tile[][] MosaicTileGrid(Tile[][] tileGrid) 
-    {
-      (int xx, int yy)[] neighbors = new []{(1, 0), (-1, 0), (0, 1), (0, -1)};
-      // var map = new Dictionary<int, (int x, int y)>();
-      for (var x = 0; x < tileGrid.Length; x++)
-      {
-        for (var y=0; y < tileGrid.Length; y++) {
-          var tile = tileGrid[x][y];
-          foreach (var (xx, yy) in neighbors)
-          {
-            if (x + xx > 0 && x + xx < tileGrid.Length && y + yy > 0 && y + yy < tileGrid.Length) {
-              var other = tileGrid[x+xx][y+yy];
+      while (process.Count > 0) {
+        var (x, y, tile) = process.Dequeue();
+        seen.Add(tile.Id);
+        TileGrid[(x, y)] = tile;
+        var neighbors = Matches[tile.Id].Select(m => Tiles[m.candidate.Id]).Where(t => !seen.Contains(t.Id));
+        if (neighbors.Count() == 0) {
+          continue;
+        }
+        var right = ExtractSide(tile, Side.Right);
+        var bottom = ExtractSide(tile, Side.Bottom);
+        (int x, int y, Tile tile)? matchesLeft = null;
+        (int x, int y, Tile tile)? matchesTop = null;
+        foreach (var n in neighbors) {
+          foreach(var t in RotateTile(n)) {
+            var left = ExtractSide(t, Side.Left);
+            var top = ExtractSide(t, Side.Top);
+            if (matchesLeft == null && SidesEqual(left, right)) {
+              matchesLeft = (x + 1, y, t);
+              break;
+            }
+            else if (matchesTop == null && SidesEqual(top, bottom)) {
+              matchesTop = (x, y - 1, t);
+              break;
             }
           }
         }
+        if (matchesLeft == null && matchesTop == null) {
+          throw new Exception("no match");
+        }
+        if (matchesLeft != null) {
+          process.Enqueue(matchesLeft.Value);
+          seen.Add(matchesLeft.Value.tile.Id);
+          TileGrid[(matchesLeft.Value.x, matchesLeft.Value.y)] = matchesLeft.Value.tile;
+        }
+        if (matchesTop != null) {
+          process.Enqueue(matchesTop.Value);
+          seen.Add(matchesTop.Value.tile.Id);
+          TileGrid[(matchesTop.Value.x, matchesTop.Value.y)] = matchesTop.Value.tile;
+        }
       }
+      var tileGrid = new Tile[tileSize][];
+      for (var i = 0; i < tileSize; i++) {
+        var row = new Tile[tileSize];
+        tileGrid[i] = row;
+      }
+      foreach ( KeyValuePair<(int x, int y), Tile> entry in TileGrid) {
+        tileGrid[entry.Key.y * -1][entry.Key.x] = entry.Value;
+      }
+      ValidateTileGrid();
       return tileGrid;
     }
 
-    Side NeighborToSide((int x, int y) point)  {
-      if (point is {x:0} and {y:1}) {
-        return Side.Top;
+    void ValidateTileGrid() {
+      foreach ( KeyValuePair<(int x, int y), Tile> entry in TileGrid) {
+        var (x, y) = entry.Key;
+        var top = (x, y + 1);
+        var left = (x - 1, y);
+        var bottom = (x, y - 1);
+        var right = (x + 1, y);
+        if (TileGrid.ContainsKey(top) && !SidesEqual(ExtractSide(TileGrid[top], Side.Bottom), ExtractSide(entry.Value, Side.Top))) {
+          throw new Exception("Does not Match");
+        }
+        if (TileGrid.ContainsKey(left) && !SidesEqual(ExtractSide(TileGrid[left], Side.Right), ExtractSide(entry.Value, Side.Left))) {
+          throw new Exception("Does not Match");
+        }
+        if (TileGrid.ContainsKey(right) && !SidesEqual(ExtractSide(TileGrid[right], Side.Left), ExtractSide(entry.Value, Side.Right))) {
+          throw new Exception("Does not Match");
+        }
+        if (TileGrid.ContainsKey(bottom) && !SidesEqual(ExtractSide(TileGrid[bottom], Side.Top), ExtractSide(entry.Value, Side.Bottom))) {
+          throw new Exception("Does not Match");
+        }
       }
-      else if (point is {x:1} and {y:0}) {
-        return Side.Right;
-      }
-      else if (point is {x:0} and {y:-1}) {
-        return Side.Bottom;
-      }
-      else if (point is {x:-1} and {y:0}) {
-        return Side.Left;
-      }
-      throw new Exception("Bad point");
+
     }
 
-    Tile MatchTile(Tile tile, Side targetSide, char[] matchValues) {
-      var i = 0;
-      while (i < 4) {
-        if (SidesEqual(ExtractSide(tile, targetSide), matchValues)) {
-          return tile;
+    Char[][] MosaicTileGrid(Tile[][] tileGrid) 
+    {
+      var rowSize = (int)Math.Sqrt(Tiles.Keys.Count());
+      var tileSize = tileGrid[0][0].Grid.Length - 2;
+      var result = new Char[rowSize * tileSize][];
+      var writeIdx = 0;
+      for (var i = 0; i < rowSize; i++) {
+        for (var j = 1; j < tileSize + 1; j++) {
+          result[writeIdx] = ReadTileLine(tileGrid[i], j);
+          writeIdx++;
         }
-        tile = new Tile(tile.Id,  RotateGrid(tile.Grid));
-        i++;
       }
-      tile = new Tile(tile.Id,  FlipGrid(tile.Grid));
-      i = 0;
-      while (i < 4) {
-        if (SidesEqual(ExtractSide(tile, targetSide), matchValues)) {
-          return tile;
-        }
-        tile = new Tile(tile.Id,  RotateGrid(tile.Grid));
-        i++;
-      }
-      throw new Exception("no match");
+      return result;
+
     }
+
+    int MatchCount(Tile tile, params string[] pattern) 
+    {
+      var size = tile.Grid[0].Length;
+      var res = 0;
+      var (ccolP, crowP) = (pattern[0].Length, pattern.Length);
+      for (var irow = 0; irow < size - crowP; irow++) 
+      for (var icol = 0; icol < size - ccolP ; icol++) {
+          bool match() {
+              for (var icolP = 0; icolP < ccolP; icolP++)
+              for (var irowP = 0; irowP < crowP; irowP++) {
+                  if (pattern[irowP][icolP] == '#' && tile.Grid[irow + irowP][icol + icolP] != '#') {
+                      return false;
+                  }
+              }
+              return true;
+          }
+          if(match()) {
+              res++;
+          }
+      }
+      return res;
+    }
+
+    IEnumerable<Tile> RotateTile(Tile tile)
+    {
+      var grid = tile.Grid;
+      var grids = new List<char[][]>(){tile.Grid};
+      var i = 0;
+      while (i < 3) {
+        grid = RotateGrid(grid);
+        grids.Add(grid);
+        i++;
+      }
+      grid = FlipGrid(grid);
+      grids.Add(grid);
+      i = 0;
+      while (i < 3) {
+        grid = RotateGrid(grid);
+        grids.Add(grid);
+        i++;
+      }
+      foreach (var g in grids) {
+        yield return new Tile(tile.Id, g);
+      }
+    }
+    
 
     char[][] FlipGrid(char[][] grid) 
     {
@@ -171,50 +252,19 @@ namespace AdventOfCode.Y2020.D20
         char[][] retVal = new char[length][];
         for(int x = 0; x < length; x++)
         {
-            retVal[x] = input.Select(p => p[x]).ToArray();
+            retVal[x] = input.Select(p => p[x]).Reverse().ToArray();
         }
         return retVal;
     }
 
-    Tile[] OrderTileRow(Tile tile, Side side) 
-    {
-      var tileSize = (int)Math.Sqrt(Tiles.Keys.Count());
-      var tiles = new Tile[tileSize];
-      tiles[0] = tile;
-      var startingSide = side;
-      var matchSide = OppositeSide(startingSide);
-      for (var i = 1; i < tileSize; i++) {
-        var matchValues = ExtractSide(tile, startingSide);
-        (tile, side)  = FindNextMatch(tile.Id, side);
-        tiles[i] = MatchTile(tile, matchSide, matchValues);
-      }
-      return tiles;
-    }
-
-    Side FindNextAdjacentSide(int id, Side side) => Matches[id].Find(t => t.tileSide != side && t.tileSide != OppositeSide(side)).tileSide;
-    Side FindNextRowSide(int id) => Matches[id].Find(t => t is {tileSide: Side.Left} or {tileSide: Side.Right}).tileSide;
-    Side FindNextColumnSide(int id) => Matches[id].Find(t => t is {tileSide: Side.Top} or {tileSide: Side.Bottom}).tileSide;
-
-    (Tile tile, Side tileSide) FindNextMatch(int id, Side side) {
-      var nextMatch = Matches[id].Find(t => t.tileSide == side);
-      return (nextMatch.candidate, OppositeSide(nextMatch.candidateSide));
-    }
-
-    Side OppositeSide(Side side) => side switch {
-      Side.Top => Side.Bottom,
-      Side.Bottom => Side.Top,
-      Side.Left => Side.Right,
-      Side.Right => Side.Left,
-      _ => throw new Exception("Unknown side")
-    };
 
     Char[] ReadTileLine(Tile[] tiles, int line) 
     {
-      var readLine = new Char[tiles.Length * tiles[0].Grid[0].Length];
+      var readLine = new Char[tiles.Length * (tiles[0].Grid[0].Length -2)];
       var idx = 0;
       foreach(var tile in tiles) {
         var row = tile.Grid[line];
-        for (var i = 0; i < row.Length; i++)
+        for (var i = 1; i < row.Length - 1; i++)
         {
           readLine[idx] = row[i];
           idx++;

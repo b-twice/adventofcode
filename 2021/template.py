@@ -1,4 +1,3 @@
-from collections import deque
 import sys
 sys.path.append('..')
 from data_handler import write_input, write_output  # noqa

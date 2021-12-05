@@ -63,7 +63,6 @@ Using this new interpretation of the commands, calculate the horizontal position
 
 '''
 
-from collections import deque
 import sys
 sys.path.append('..')
 from data_handler import write_input, write_output  # noqa
@@ -78,6 +77,7 @@ with open(input_file, 'r') as f:
     data = [line.split() for line in f.read().splitlines()]
 
 
+# SOLUTION 1
 def handle_action(action, state):
     command = action[0]
     distance = int(action[1])
@@ -90,14 +90,29 @@ def handle_action(action, state):
         return (state[0], state[1] + distance)
 
 
-# SOLUTION 1
 state = (0, 0)  # horizontal, depth
-solution_1 = 0
 for action in data:
     state = handle_action(action, state)
 
 # SOLUTION 2
-solution_2 = 0
+
+
+def handle_action2(action, state):
+    command = action[0]
+    distance = int(action[1])
+
+    if command == 'forward':
+        return (state[0] + distance, state[1] + (state[2] * distance), state[2])
+    if command == 'up':
+        return (state[0], state[1], state[2] - distance)
+    if command == 'down':
+        return (state[0], state[1], state[2] + distance)
+
+
+state2 = (0, 0, 0)  # horizontal, depth, aim
+for action in data:
+    state2 = handle_action2(action, state2)
+
 
 # WRITE
-write_output([str(state[0] * state[1]), str(solution_2)])
+write_output([str(state[0] * state[1]), str(state2[0] * state2[1])])

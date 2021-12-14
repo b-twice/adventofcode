@@ -46,7 +46,7 @@ def runInstructions(points, foldInstructions, print=True):
 def printInstructions(points):
     mx = max([p[0] for p in points])
     my = max([p[1] for p in points])
-    grid = [['.' for _ in range(my+1)] for _ in range(mx+1)]
+    grid = [[' ' for _ in range(my+1)] for _ in range(mx+1)]
     for p in points:
         grid[p[0]][p[1]] = '█'
     for line in reversed(grid):
